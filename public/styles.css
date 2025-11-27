@@ -1,0 +1,393 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+body {
+  background: #f3f5fa;
+  color: #111827;
+}
+
+.sh-header {
+  background: #0f766e;
+  color: white;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sh-header .logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.sh-header .tagline {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.sh-main {
+  max-width: 1100px;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .sh-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sh-form-card,
+.sh-list-card {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+h2 {
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+}
+
+.sh-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.sh-row label {
+  flex: 1;
+}
+
+.sh-btn {
+  margin-top: 0.9rem;
+  background: #0f766e;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sh-btn:hover {
+  background: #115e59;
+}
+
+.sh-message {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.sh-message.success {
+  color: #15803d;
+}
+
+.sh-message.error {
+  color: #b91c1c;
+}
+
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.task-card {
+  background: #f9fafb;
+  border-radius: 0.75rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #e5e7eb;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-header h3 {
+  font-size: 1rem;
+}
+
+.task-budget {
+  background: #ecfdf3;
+  color: #166534;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.task-meta {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.task-desc {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.task-footer {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.sh-footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+  padding: 1rem 0;
+}
+
+.sh-filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.sh-filters select,
+.sh-filters input {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .sh-filters {
+    flex-direction: column;
+  }
+}
+.apply-btn {
+  margin-top: 0.6rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #0369a1;
+  color: #ffffff;
+}
+
+.apply-btn:hover {
+  background: #075985;
+}
+.view-apps-btn {
+  margin-top: 0.4rem;
+  margin-left: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  font-size: 0.8rem;
+  cursor: pointer;
+  background: #f9fafb;
+  color: #111827;
+}
+
+.view-apps-btn:hover {
+  background: #e5e7eb;
+}
+.sh-auth-card {
+  background: #ffffff;
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  margin-bottom: 1.5rem;
+}
+
+.sh-auth-card h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.sh-btn.secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.sh-btn.secondary:hover {
+  background: #d1d5db;
+}
+
+.sh-btn.danger {
+  background: #b91c1c;
+}
+
+.sh-btn.danger:hover {
+  background: #991b1b;
+}
+
+.hidden {
+  display: none;
+}
+.lang-switch {
+  position: absolute;
+  right: 1.5rem;
+  top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.lang-btn {
+  background: #e5e7eb;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.lang-btn:hover {
+  background: #d1d5db;
+}
+
+.lang-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+}
+/* ---------- POPUP OVERLAY ---------- */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.popup.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ---------- POPUP CONTENT ---------- */
+.popup-content {
+  background: #fff;
+  padding: 25px;
+  width: 90%;
+  max-width: 380px;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+  animation: fadeZoom 0.25s ease;
+  position: relative;
+}
+
+@keyframes fadeZoom {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.popup-content h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.popup-content input {
+  width: 100%;
+  padding: 11px;
+  border-radius: 8px;
+  border: 1px solid #ccd;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.popup-content button.sh-btn {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Close button */
+.close-popup {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: #eee;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+.dashboard {
+  background: #fff;
+  padding: 25px;
+  border-radius: 16px;
+  margin-top: 30px;
+}
+
+.dashboard-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.dashboard .tab {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #f7f7f7;
+  cursor: pointer;
+}
+
+.dashboard .tab.active {
+  background: #0066ff;
+  color: #fff;
+  border-color: #0066ff;
+}
+
+.task-entry,
+.application-entry {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.hidden {
+  display: none;
+}
+

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Student Hustle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="sh-header">
+      <div class="logo">🎓 Student Hustle</div>
+
+      <div class="tagline" data-i18n="tagline">
+        Earn small, stay flexible – UK & EU students
+      </div>
+
+      <div class="header-right">
+        <!-- LANGUAGE SWITCH -->
+        <div class="language-switch">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="ro">RO</button>
+        </div>
+
+        <!-- AUTH AREA -->
+        <div id="auth-area">
+          <!-- When logged OUT -->
+          <button
+            id="login-btn"
+            class="sh-btn small"
+            data-i18n="login"
+          >
+            Login
+          </button>
+          <button
+            id="register-btn"
+            class="sh-btn small outline"
+            data-i18n="register"
+          >
+            Register
+          </button>
+
+          <!-- When logged IN -->
+          <span id="user-info" style="display: none;">
+            <span id="user-name"></span>
+            <button
+              id="logout-btn"
+              class="sh-btn small danger"
+              data-i18n="logout"
+            >
+              Logout
+            </button>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="sh-main">
+      <!-- POST A TASK -->
+      <section class="sh-form-card">
+        <h2 data-i18n="postTask">Post a New Task / Gig</h2>
+
+        <form id="task-form">
+          <!-- Title -->
+          <label data-i18n="title">Title*</label>
+          <input
+            type="text"
+            id="title"
+            required
+            placeholder="e.g. Need Canva poster for event"
+          />
+
+          <!-- Description -->
+          <label data-i18n="description">Description</label>
+          <textarea
+            id="description"
+            rows="3"
+            placeholder="Describe what you need or offer"
+          ></textarea>
+
+          <div class="sh-row">
+            <!-- Budget -->
+            <div class="field">
+              <label data-i18n="budget">Budget (£/€)*</label>
+              <input type="number" id="budget" required min="1" />
+            </div>
+
+            <!-- Category -->
+            <div class="field">
+              <label data-i18n="category">Category</label>
+              <select id="category">
+                <option value="creative" data-i18n="catCreative">
+                  Creative (design, photo, video)
+                </option>
+                <option value="study" data-i18n="catStudy">
+                  Study Help / Tutoring
+                </option>
+                <option value="micro" data-i18n="catMicro">
+                  Micro-Task / Errand
+                </option>
+                <option value="tech" data-i18n="catTech">
+                  Tech / Digital
+                </option>
+                <option value="other" data-i18n="catOther">
+                  Other
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="sh-row">
+            <!-- City -->
+            <div class="field">
+              <label data-i18n="city">City / Campus</label>
+              <input
+                type="text"
+                id="city"
+                placeholder="e.g. Manchester, UK"
+              />
+            </div>
+
+            <!-- Your Name -->
+            <div class="field">
+              <label data-i18n="yourName">Your name (optional)</label>
+              <input
+                type="text"
+                id="createdBy"
+                placeholder="e.g. Alice"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="sh-btn"
+            data-i18n="postTaskBtn"
+          >
+            Post Task
+          </button>
+
+          <p id="form-message" class="sh-message"></p>
+        </form>
+      </section>
+
+      <!-- TASK LIST + FILTERS -->
+      <section class="sh-list-card">
+        <h2 data-i18n="latestTasks">Latest Tasks & Gigs</h2>
+
+        <div class="sh-filters">
+          <select id="filter-category">
+            <option value="all" data-i18n="filterAll">All categories</option>
+            <option value="creative" data-i18n="catCreative">Creative</option>
+            <option value="study" data-i18n="catStudy">Study Help</option>
+            <option value="micro" data-i18n="catMicro">Micro-Task</option>
+            <option value="tech" data-i18n="catTech">Tech</option>
+            <option value="other" data-i18n="catOther">Other</option>
+          </select>
+
+          <input
+            type="text"
+            id="filter-search"
+            data-i18n-placeholder="searchPlaceholder"
+            placeholder="Search by title, description or city"
+          />
+        </div>
+
+        <div id="tasks-list" class="tasks-list"></div>
+      </section>
+
+      <!-- OPTIONAL DASHBOARD (only used if you want My Tasks/My Apps) -->
+      <section id="dashboard" class="dashboard hidden">
+        <h2 data-i18n="dashboard">My Dashboard</h2>
+
+        <div class="dashboard-tabs">
+          <button
+            id="tab-my-tasks"
+            class="tab active"
+            data-i18n="myTasks"
+          >
+            My Tasks
+          </button>
+          <button
+            id="tab-my-apps"
+            class="tab"
+            data-i18n="myApplications"
+          >
+            My Applications
+          </button>
+        </div>
+
+        <div id="dashboard-content"></div>
+      </section>
+    </main>
+
+    <!-- LOGIN POPUP -->
+    <div id="login-popup" class="popup hidden">
+      <div class="popup-content">
+        <h3 data-i18n="login">Login</h3>
+
+        <input type="email" id="login-email" placeholder="Email" />
+        <input type="password" id="login-password" placeholder="Password" />
+
+        <button
+          id="login-submit"
+          class="sh-btn"
+          data-i18n="login"
+        >
+          Login
+        </button>
+        <button class="close-popup">X</button>
+        <p id="login-msg"></p>
+      </div>
+    </div>
+
+    <!-- REGISTER POPUP -->
+    <div id="register-popup" class="popup hidden">
+      <div class="popup-content">
+        <h3 data-i18n="register">Register</h3>
+
+        <input type="text" id="reg-name" placeholder="Name" />
+        <input type="email" id="reg-email" placeholder="Email" />
+        <input type="password" id="reg-password" placeholder="Password" />
+
+        <button
+          id="register-submit"
+          class="sh-btn"
+          data-i18n="register"
+        >
+          Register
+        </button>
+        <button class="close-popup">X</button>
+        <p id="register-msg"></p>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="sh-footer">
+      MVP demo – data resets when server restarts. Built for UK & EU students.
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
