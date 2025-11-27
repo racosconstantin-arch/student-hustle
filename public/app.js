@@ -1,5 +1,5 @@
 // ===============================
-// MULTI-LANGUAGE SUPPORT
+// TRANSLATIONS
 // ===============================
 const TRANSLATIONS = {
   en: {
@@ -15,8 +15,8 @@ const TRANSLATIONS = {
     latestTasks: "Latest Tasks & Gigs",
     filterAll: "All categories",
     catCreative: "Creative",
-    catStudy: "Study Help",
-    catMicro: "Micro-Task",
+    catStudy: "Study Help / Tutoring",
+    catMicro: "Micro-Task / Errand",
     catTech: "Tech / Digital",
     catOther: "Other",
     searchPlaceholder: "Search by title, description or city",
@@ -33,6 +33,7 @@ const TRANSLATIONS = {
     msgTaskSuccess: "Task posted successfully!",
     msgLoginSuccess: "Login successful.",
     msgRegisterSuccess: "Registration successful! You are now logged in.",
+    postedBy: "Posted by",
   },
   ro: {
     tagline: "Câștigă puțin, rămâi flexibil – studenți UK & UE",
@@ -65,6 +66,7 @@ const TRANSLATIONS = {
     msgTaskSuccess: "Task-ul a fost publicat!",
     msgLoginSuccess: "Autentificare reușită.",
     msgRegisterSuccess: "Înregistrare reușită! Acum ești autentificat.",
+    postedBy: "Postat de",
   },
 };
 
@@ -73,13 +75,11 @@ let currentLang = window.localStorage.getItem("sh_lang") || "en";
 function translatePage() {
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
-  // Text nodes
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (t[key]) el.textContent = t[key];
   });
 
-  // Placeholders
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
     const key = el.getAttribute("data-i18n-placeholder");
     if (t[key]) el.placeholder = t[key];
@@ -104,7 +104,7 @@ function setupLanguageButtons() {
           )
         );
       translatePage();
-      renderTasks(); // re-render buttons text if needed
+      renderTasks();
     });
   });
 }
@@ -118,12 +118,13 @@ const formMessage = document.getElementById("form-message");
 const filterCategory = document.getElementById("filter-category");
 const filterSearch = document.getElementById("filter-search");
 
-// Auth elements
+// Auth header
 const loginBtn = document.getElementById("login-btn");
 const registerBtn = document.getElementById("register-btn");
 const logoutBtn = document.getElementById("logout-btn");
 const userInfoSpan = document.getElementById("user-info");
 const userNameSpan = document.getElementById("user-name");
+const createdByInput = document.getElementById("createdBy");
 
 // Auth popups
 const loginPopup = document.getElementById("login-popup");
@@ -132,41 +133,81 @@ const loginEmailInput = document.getElementById("login-email");
 const loginPasswordInput = document.getElementById("login-password");
 const loginSubmitBtn = document.getElementById("login-submit");
 const loginMsg = document.getElementById("login-msg");
-
 const regNameInput = document.getElementById("reg-name");
 const regEmailInput = document.getElementById("reg-email");
 const regPasswordInput = document.getElementById("reg-password");
 const regSubmitBtn = document.getElementById("register-submit");
 const regMsg = document.getElementById("register-msg");
 
-const createdByInput = document.getElementById("createdBy");
-
-// Dashboard (optional - only if you added it in HTML)
+// Dashboard (optional)
 const dashboardSection = document.getElementById("dashboard");
 const dashboardContent = document.getElementById("dashboard-content");
 const tabMyTasks = document.getElementById("tab-my-tasks");
 const tabMyApps = document.getElementById("tab-my-apps");
 
+// Apply & info popups
+const appPopup = document.getElementById("app-popup");
+const appPopupTitle = document.getElementById("app-popup-title");
+const appPopupBody = document.getElementById("app-popup-body");
+const appPopupMsg = document.getElementById("app-popup-msg");
+const appPopupSubmit = document.getElementById("app-popup-submit");
+const appPopupCancel = document.getElementById("app-popup-cancel");
+
+const infoPopup = document.getElementById("info-popup");
+const infoPopupTitle = document.getElementById("info-popup-title");
+const infoPopupBody = document.getElementById("info-popup-body");
+const infoPopupOk = document.getElementById("info-popup-ok");
+
 // ===============================
-// APP STATE
+// STATE
 // ===============================
 let allTasks = [];
 let authToken = null;
 let currentUser = null;
+let currentApplyTask = null;
 
 // ===============================
-// AUTH HELPERS
+// HELPERS
+// ===============================
+function escapeHtml(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function openPopup(el) {
+  if (!el) return;
+  el.classList.remove("hidden");
+  el.classList.add("show");
+}
+
+function closePopup(el) {
+  if (!el) return;
+  el.classList.remove("show");
+  el.classList.add("hidden");
+}
+
+function showInfoPopup(title, html) {
+  if (!infoPopup) return;
+  infoPopupTitle.textContent = title;
+  infoPopupBody.innerHTML = html;
+  openPopup(infoPopup);
+}
+
+// ===============================
+// AUTH FUNCTIONS
 // ===============================
 function updateAuthUI() {
   if (currentUser && authToken) {
-    // show logged-in UI
     if (userInfoSpan) userInfoSpan.style.display = "inline-flex";
     if (loginBtn) loginBtn.style.display = "none";
     if (registerBtn) registerBtn.style.display = "none";
     if (userNameSpan) userNameSpan.textContent = currentUser.name;
     if (createdByInput) createdByInput.value = currentUser.name;
   } else {
-    // show logged-out UI
     if (userInfoSpan) userInfoSpan.style.display = "none";
     if (loginBtn) loginBtn.style.display = "inline-flex";
     if (registerBtn) registerBtn.style.display = "inline-flex";
@@ -209,22 +250,7 @@ function restoreAuthFromStorage() {
 }
 
 // ===============================
-// POPUP HELPERS
-// ===============================
-function openPopup(el) {
-  if (!el) return;
-  el.classList.remove("hidden");
-  el.classList.add("show");
-}
-
-function closePopup(el) {
-  if (!el) return;
-  el.classList.remove("show");
-  el.classList.add("hidden");
-}
-
-// ===============================
-// FETCH TASKS
+// LOAD TASKS
 // ===============================
 async function loadTasks() {
   tasksList.innerHTML = "<p>Loading tasks...</p>";
@@ -243,16 +269,9 @@ async function loadTasks() {
 // ===============================
 // RENDER TASKS
 // ===============================
-function escapeHtml(str) {
-  return String(str || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
 function renderTasks() {
+  if (!tasksList) return;
+
   const search = filterSearch ? filterSearch.value.trim().toLowerCase() : "";
   const category = filterCategory ? filterCategory.value : "all";
 
@@ -262,12 +281,10 @@ function renderTasks() {
     .filter((task) => {
       const matchesCategory =
         category === "all" || task.category === category;
-
       const combinedText = `${task.title} ${
         task.description || ""
       } ${task.city || ""}`.toLowerCase();
       const matchesSearch = !search || combinedText.includes(search);
-
       return matchesCategory && matchesSearch;
     });
 
@@ -276,8 +293,8 @@ function renderTasks() {
     return;
   }
 
-  tasksList.innerHTML = "";
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+  tasksList.innerHTML = "";
 
   filtered.forEach((task) => {
     const card = document.createElement("article");
@@ -297,23 +314,19 @@ function renderTasks() {
           : ""
       }
       <p class="task-footer">
-        ${t.postedBy || "Posted by"} ${escapeHtml(task.createdBy || "Anonymous")} ·
+        ${t.postedBy || "Posted by"} ${escapeHtml(
+      task.createdBy || "Anonymous"
+    )} ·
         ${new Date(task.createdAt).toLocaleString()}
       </p>
     `;
 
-    // Apply button
     const applyBtn = document.createElement("button");
     applyBtn.className = "apply-btn";
     applyBtn.textContent = t.applyForTask || "Apply for this task";
-    if (!authToken) {
-      applyBtn.disabled = true;
-      applyBtn.title = t.msgMustLoginApply || "Please log in to apply.";
-    }
     applyBtn.addEventListener("click", () => openApplicationPrompt(task));
     card.appendChild(applyBtn);
 
-    // View applications
     const viewBtn = document.createElement("button");
     viewBtn.className = "view-apps-btn";
     viewBtn.textContent = t.viewApplications || "View applications";
@@ -327,147 +340,202 @@ function renderTasks() {
 // ===============================
 // TASK FORM SUBMIT
 // ===============================
-taskForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  formMessage.textContent = "";
+if (taskForm) {
+  taskForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    formMessage.textContent = "";
+    const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+
+    if (!authToken) {
+      showInfoPopup(
+        t.login || "Login required",
+        `<p>${escapeHtml(
+          t.msgMustLoginPost || "You must be logged in to post a task."
+        )}</p>`
+      );
+      return;
+    }
+
+    const title = document.getElementById("title").value.trim();
+    const description = document.getElementById("description").value.trim();
+    const budget = document.getElementById("budget").value;
+    const category = document.getElementById("category").value;
+    const city = document.getElementById("city").value.trim();
+    let createdBy = createdByInput ? createdByInput.value.trim() : "";
+    if (currentUser?.name) createdBy = currentUser.name;
+
+    if (!title || !budget) {
+      formMessage.textContent = "Please fill in title and budget.";
+      formMessage.className = "sh-message error";
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          budget,
+          category,
+          city,
+          createdBy,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create task.");
+
+      taskForm.reset();
+      if (currentUser && createdByInput) {
+        createdByInput.value = currentUser.name;
+      }
+
+      formMessage.textContent = t.msgTaskSuccess || "Task posted successfully!";
+      formMessage.className = "sh-message success";
+      await loadTasks();
+    } catch (err) {
+      console.error(err);
+      formMessage.textContent = err.message;
+      formMessage.className = "sh-message error";
+    }
+  });
+}
+
+// ===============================
+// APPLY POPUP LOGIC
+// ===============================
+function openApplyPopup(task) {
+  if (!appPopup) return;
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
-  if (!authToken) {
-    alert(t.msgMustLoginPost || "You must be logged in to post a task.");
+  currentApplyTask = task;
+  appPopupTitle.textContent = t.applyForTask || "Apply for this task";
+
+  appPopupBody.innerHTML = `
+    <label>
+      ${t.yourName || "Your name"}
+      <input type="text" id="apply-name" value="${escapeHtml(
+        currentUser?.name || ""
+      )}">
+    </label>
+    <label>
+      Message
+      <textarea id="apply-message" rows="3" placeholder="Write a short message"></textarea>
+    </label>
+    <label>
+      Offer budget (£/€)
+      <input type="number" id="apply-budget" min="1" placeholder="Optional">
+    </label>
+  `;
+
+  appPopupMsg.textContent = "";
+  appPopupMsg.className = "sh-message";
+
+  openPopup(appPopup);
+}
+
+async function handleApplySubmit() {
+  const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+  if (!currentApplyTask) {
+    closePopup(appPopup);
     return;
   }
 
-  const title = document.getElementById("title").value.trim();
-  const description = document.getElementById("description").value.trim();
-  const budget = document.getElementById("budget").value;
-  const category = document.getElementById("category").value;
-  const city = document.getElementById("city").value.trim();
-  let createdBy = createdByInput ? createdByInput.value.trim() : "";
+  const nameEl = document.getElementById("apply-name");
+  const msgEl = document.getElementById("apply-message");
+  const budgetEl = document.getElementById("apply-budget");
 
-  if (currentUser && currentUser.name) {
-    createdBy = currentUser.name;
-  }
+  const applicantName = nameEl.value.trim();
+  const message = msgEl.value.trim();
+  const offerBudget = budgetEl.value ? Number(budgetEl.value) : null;
 
-  if (!title || !budget) {
-    formMessage.textContent = "Please fill in title and budget.";
-    formMessage.className = "sh-message error";
+  if (!applicantName || !message) {
+    appPopupMsg.textContent = "Please fill your name and message.";
+    appPopupMsg.className = "sh-message error";
     return;
   }
 
   try {
-    const res = await fetch("/api/tasks", {
+    const res = await fetch(`/api/tasks/${currentApplyTask._id}/applications`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        description,
-        budget,
-        category,
-        city,
-        createdBy,
-      }),
+      body: JSON.stringify({ applicantName, message, offerBudget }),
     });
-
     const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.error || "Failed to create task.");
-    }
+    if (!res.ok) throw new Error(data.error || "Failed to apply.");
 
-    taskForm.reset();
-    if (currentUser && createdByInput) {
-      createdByInput.value = currentUser.name;
-    }
-
-    formMessage.textContent = t.msgTaskSuccess || "Task posted successfully!";
-    formMessage.className = "sh-message success";
-    await loadTasks();
+    appPopupMsg.textContent = "Application sent!";
+    appPopupMsg.className = "sh-message success";
+    setTimeout(() => closePopup(appPopup), 800);
   } catch (err) {
     console.error(err);
-    formMessage.textContent = err.message;
-    formMessage.className = "sh-message error";
+    appPopupMsg.textContent = err.message;
+    appPopupMsg.className = "sh-message error";
   }
-});
+}
 
-// ===============================
-// APPLY TO TASK
-// ===============================
+if (appPopupCancel) {
+  appPopupCancel.addEventListener("click", () => closePopup(appPopup));
+}
+if (appPopupSubmit) {
+  appPopupSubmit.addEventListener("click", handleApplySubmit);
+}
+
+// Called when user clicks "Apply for this task"
 async function openApplicationPrompt(task) {
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
   if (!authToken) {
-    alert(t.msgMustLoginApply || "Please log in to apply for a task.");
+    showInfoPopup(
+      t.login || "Login required",
+      `<p>${escapeHtml(
+        t.msgMustLoginApply || "Please log in to apply for a task."
+      )}</p>`
+    );
     return;
   }
 
-  const applicantName = prompt(
-    `Applying for: ${task.title}\n\nEnter your name:`
-  );
-  if (!applicantName) return;
-
-  const message = prompt("Write a short message to the task owner:");
-  if (!message) return;
-
-  const offerBudgetInput = prompt(
-    "Offer budget (£/€) (optional – leave empty to skip):"
-  );
-  const offerBudget = offerBudgetInput ? Number(offerBudgetInput) : null;
-
-  try {
-    const res = await fetch(`/api/tasks/${task._id}/applications`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        applicantName,
-        message,
-        offerBudget,
-      }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.error || "Failed to apply for task.");
-    }
-
-    alert("Your application has been sent!");
-  } catch (err) {
-    console.error(err);
-    alert("Error: " + err.message);
-  }
+  openApplyPopup(task);
 }
 
 // ===============================
-// VIEW APPLICATIONS PER TASK
+// VIEW APPLICATIONS
 // ===============================
 async function viewApplications(task) {
   try {
     const res = await fetch(`/api/tasks/${task._id}/applications`);
-    if (!res.ok) {
-      throw new Error("Failed to fetch applications.");
-    }
+    if (!res.ok) throw new Error("Failed to fetch applications.");
     const apps = await res.json();
 
     if (!apps.length) {
-      alert("No applications yet for this task.");
+      showInfoPopup("Applications", "<p>No applications yet for this task.</p>");
       return;
     }
 
-    const lines = apps.map((app, index) => {
-      const budgetText =
-        app.offerBudget != null ? ` • Offer: £/€ ${app.offerBudget}` : "";
-      return `${index + 1}. ${app.applicantName}${budgetText}\n   "${
-        app.message
-      }"`;
-    });
+    const items = apps
+      .map((app) => {
+        const budgetText =
+          app.offerBudget != null ? ` • Offer: £/€ ${app.offerBudget}` : "";
+        return `<div class="application-entry">
+          <strong>${escapeHtml(app.applicantName)}${budgetText}</strong>
+          <p>${escapeHtml(app.message || "")}</p>
+        </div>`;
+      })
+      .join("");
 
-    alert(`Applications for "${task.title}":\n\n` + lines.join("\n\n"));
+    showInfoPopup(
+      `Applications for "${escapeHtml(task.title)}"`,
+      items
+    );
   } catch (err) {
     console.error(err);
-    alert("Error loading applications: " + err.message);
+    showInfoPopup("Error", `<p>${escapeHtml(err.message)}</p>`);
   }
 }
 
 // ===============================
-// DASHBOARD (My Tasks / My Applications)
+// DASHBOARD (simple version)
 // ===============================
 function updateDashboardVisibility() {
   if (!dashboardSection) return;
@@ -478,8 +546,8 @@ async function loadMyTasks() {
   if (!dashboardContent || !currentUser) return;
   const res = await fetch("/api/tasks");
   const tasks = await res.json();
-
   const my = tasks.filter((t) => t.createdBy === currentUser.name);
+
   let html = "<h3>My Posted Tasks</h3>";
   if (!my.length) html += "<p>No tasks posted yet.</p>";
 
@@ -541,17 +609,20 @@ if (registerBtn && registerPopup) {
     openPopup(registerPopup);
   });
 }
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => setLoggedOut());
+}
+
+// close buttons for ANY popup
 document.querySelectorAll(".close-popup").forEach((btn) => {
   btn.addEventListener("click", () => {
-    closePopup(loginPopup);
-    closePopup(registerPopup);
+    const popup = btn.closest(".popup");
+    if (popup) closePopup(popup);
   });
 });
 
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", () => {
-    setLoggedOut();
-  });
+if (infoPopupOk) {
+  infoPopupOk.addEventListener("click", () => closePopup(infoPopup));
 }
 
 // Login submit
@@ -573,9 +644,7 @@ if (loginSubmitBtn) {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Login failed.");
-      }
+      if (!res.ok) throw new Error(data.error || "Login failed.");
 
       setLoggedIn(data.user, data.token);
       const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
@@ -608,9 +677,7 @@ if (regSubmitBtn) {
         body: JSON.stringify({ name, email, password }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Registration failed.");
-      }
+      if (!res.ok) throw new Error(data.error || "Registration failed.");
 
       setLoggedIn(data.user, data.token);
       const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
@@ -624,9 +691,7 @@ if (regSubmitBtn) {
   });
 }
 
-// ===============================
-// FILTER LISTENERS
-// ===============================
+// Filters
 if (filterCategory) {
   filterCategory.addEventListener("change", renderTasks);
 }
